@@ -32,6 +32,8 @@ In the game: a page **A world that is yours**. Write a world. It will not carry 
 
 [Aught](https://github.com/jshwilsnach-prog/aught) is another door in the same house. It counts who entered. It does not keep who.
 
+**Door:** [https://aught.grok.me](https://aught.grok.me)
+
 The author of this folder may be known over time. People who walk through that door cannot. That is the point of the room.
 
 ## Take it
