@@ -24,11 +24,18 @@ Will you help each other or not? What is your heart like when you cannot prove w
 
 Fork the house. Keep `src/game/law.ts`. Rank cannot be authored.
 
-## Aught and zk
+## Aught, zk, and homomorphic encryption
 
 [Aught](https://github.com/jshwilsnach-prog/aught) is proof of work that links to Nekyia: a UTC date and a whole number. Opening the play door is the work. Not a who.
 
-This house does **not** ship a proving circuit. It treats the count as a zero-knowledge **stance**: the statement is *there exists an opening*. Even a perfect zk proof of that statement would not name a walker. The witness stays with them. Privacy outranks a richer number.
+This house does **not** ship a proving circuit or an FHE library. It treats the count as a **stance**:
+
+- **Zk:** the statement is *there exists an opening*. Even a perfect proof would not name a walker. The witness stays with them.
+- **Homomorphic encryption:** work on a lock without opening it. Even a perfect homomorphic tally would still be a number, not a who. Do not store a richer number because it is encrypted.
+
+Privacy outranks a richer number.
+
+If the law as made cannot sit with itself, seat a shielded name. There is no first or last.
 
 Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
 
