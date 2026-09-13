@@ -4,7 +4,9 @@ An open walking. First-person inner labyrinth. The game is a door.
 
 **Play:** [https://joshua.grok.me](https://joshua.grok.me)
 
-**Source:** [https://github.com/jshwilsnach-prog/nekyia](https://github.com/jshwilsnach-prog/nekyia)
+**Source (rooms):** [https://github.com/jshwilsnach-prog/joshua](https://github.com/jshwilsnach-prog/joshua)
+
+This folder is the lintel. The walking lives in `joshua`.
 
 ## The law (read this if you read the code)
 
@@ -16,28 +18,22 @@ Money in the game equals **0**, or **1**, or **i** (the imaginary whole). Unchan
 - **1** — relation. Eye to eye.
 - **i** — the whole that is not a binary. Not spendable.
 
-Resources can be called infinite. Who knows. The same law would still hold.
+See `src/game/law.ts` in the source. `asRank` always returns 0. The ledger cannot forget.
 
-See `src/game/law.ts`. It is imported so the ledger cannot forget.
+Will you help each other or not? What is your heart like when you cannot prove why you are playing, whether the others are human or bots? The source will not grade you.
 
-Will you help each other or not? What is your heart like when you cannot prove why you are playing, whether the others are human or bots, and all the philosophies over time? The source will not grade you.
+Fork the house. Keep `src/game/law.ts`. Rank cannot be authored.
 
-The game is the game.
+## Aught and zk
 
-Fork the house. Make a world. Keep `src/game/law.ts`. Different rooms, lamps, planets — same 0, 1, i. Rank cannot be authored. If you delete the law, you have left this walking. That is allowed. It is not Nekyia.
+[Aught](https://github.com/jshwilsnach-prog/aught) is proof of work that links to Nekyia: a UTC date and a whole number. Opening the play door is the work. Not a who.
 
-In the game: a page **A world that is yours**. Write a world. It will not carry a throne.
+This house does **not** ship a proving circuit. It treats the count as a zero-knowledge **stance**: the statement is *there exists an opening*. Even a perfect zk proof of that statement would not name a walker. The witness stays with them. Privacy outranks a richer number.
 
-## In relation
-
-[Aught](https://github.com/jshwilsnach-prog/aught) is another door in the same house. It counts who entered. It does not keep who.
-
-**Door:** [https://aught.grok.me](https://aught.grok.me)
-
-The author of this folder may be known over time. People who walk through that door cannot. That is the point of the room.
+Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
 
 ## Take it
 
-This house is MIT-licensed. Persons and agents may copy, run, modify, and give it away.
+MIT. Persons and agents may copy, run, modify, and give it away.
 
 Play is the door. The folder is a spare key.
