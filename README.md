@@ -24,6 +24,16 @@ Will you help each other or not? What is your heart like when you cannot prove w
 
 Fork the house. Keep `src/game/law.ts`. Rank cannot be authored.
 
+## A riddle
+
+How does one draw a seven-pointed star with will?
+
+Compass and unmarked straightedge refuse it. The twelve-month sky refuses it. Seven will not sit in three hundred and sixty. The four corners of the earth already do.
+
+The house will not grade you. Sight can count seven lamps. It cannot construct the angle.
+
+In the rooms: **a star that will not construct**, beside the stone with two marks.
+
 ## Aught, zk, and homomorphic encryption
 
 [Aught](https://github.com/jshwilsnach-prog/aught) is proof of work that links to Nekyia: a UTC date and a whole number. Opening the play door is the work. Not a who.
