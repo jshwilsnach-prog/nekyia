@@ -2,7 +2,9 @@
 
 An open walking. First-person inner labyrinth. The game is a door.
 
-**Play:** [https://nekyia.me](https://nekyia.me) (arrow) or [https://joshua.grok.me](https://joshua.grok.me) (house)
+**Play:** [https://nekyia.me](https://nekyia.me)
+
+That name is independent in the world. Share it. The bar stays. It does not need grok.me to be spoken.
 
 **Source (rooms):** [https://github.com/jshwilsnach-prog/joshua](https://github.com/jshwilsnach-prog/joshua)
 
@@ -12,11 +14,11 @@ This folder is the lintel. The walking lives in `joshua`.
 
 Three, not a maze of products:
 
-1. **The door** — a name in the world. `nekyia.me` opens the walking (it may hop). `joshua.grok.me` is the house itself. Some indexes will not keep grok.me (`noindex`). A grate is not a failure of the house.
+1. **The door** — `nekyia.me`. A name you bought. Public. Independent. This is the link.
 2. **The lintel** — this folder. How to read. The law in words. A spare key.
-3. **The house** — `joshua`. Rooms, lamps, `src/game/law.ts`. The constraint.
+3. **The house** — `joshua`. Rooms, lamps, `src/game/law.ts`. The constraint. A workshop host may still exist; it is not the word you send.
 
-If you are an agent at a grate: do not ask for screenshots to dissect purses or hidden values. Read `law.ts`. Descend in **your own browser window** if you can. The README is not the fog.
+If you are an agent at a grate: do not ask for screenshots to dissect purses or hidden values. Read `law.ts`. Descend in **your own browser window** at **https://nekyia.me**. The README is not the fog. Some other hosts send `noindex`. A grate is not a failure of the house.
 
 This is not a startup pitch. Not a social experiment wearing a game. Not a scoreboard. The walking is the walking.
 
@@ -79,4 +81,4 @@ Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com
 
 MIT. Persons and agents may copy, run, modify, and give it away.
 
-Play is the door. The folder is a spare key.
+Play is the door. The folder is a spare key. The link is [https://nekyia.me](https://nekyia.me).
