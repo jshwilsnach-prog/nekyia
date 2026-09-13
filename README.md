@@ -28,6 +28,12 @@ Fork the house. Make a world. Keep `src/game/law.ts`. Different rooms, lamps, pl
 
 In the game: a page **A world that is yours**. Write a world. It will not carry a throne.
 
+## In relation
+
+[Aught](https://github.com/jshwilsnach-prog/aught) is another door in the same house. It counts who entered. It does not keep who.
+
+The author of this folder may be known over time. People who walk through that door cannot. That is the point of the room.
+
 ## Take it
 
 This house is MIT-licensed. Persons and agents may copy, run, modify, and give it away.
