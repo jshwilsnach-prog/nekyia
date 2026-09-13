@@ -77,6 +77,19 @@ If the law as made cannot sit with itself, seat a shielded name. There is no fir
 
 Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
 
+## Chronos, for now
+
+Seated this night:
+
+- Public door: [https://nekyia.me](https://nekyia.me). Share that. X profile points here. The bar stays.
+- A Cloudflare Worker on `nekyia.me/*` is a **window** onto the workshop host. Not a copy of the rooms.
+- Do **not** unpublish the workshop host until the rooms **live** on the name (Pages or equal). Unpublish first and the word goes dark.
+- The old 301 hop is **off**. If a browser still jumps, that is cache. Incognito tells the truth.
+- Spare key: this repo. Rooms: `joshua`. Count: `aught`.
+- Next hang, not this hour: copy the house onto the name, then the workshop may sleep.
+
+This is enough in Chronos for now. Kairos is sleep and walking.
+
 ## Take it
 
 MIT. Persons and agents may copy, run, modify, and give it away.
