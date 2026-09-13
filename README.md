@@ -46,6 +46,20 @@ The house will not grade you. Sight can count seven lamps. It cannot construct t
 
 In the rooms: **a star that will not construct**, beside the stone with two marks.
 
+## Another riddle
+
+How is π known, if not by a last lamp?
+
+A line asked to become a world. No last digit. One being counts from a guessed end — a bound, not a finish. One being counts from the perfect now — the unit underfoot, not the whole circle.
+
+If either stops, the wheel seizes. Two pits. A religion.
+
+If they keep walking, they figure a meeting, not a who. Sight cannot finish the turn.
+
+In the rooms: **two counts on a circle**, beside the stone with two marks.
+
+The house will not grade you.
+
 ## Aught, zk, and homomorphic encryption
 
 [Aught](https://github.com/jshwilsnach-prog/aught) is proof of work that links to Nekyia: a UTC date and a whole number. Opening the play door is the work. Not a who. Aught may enter as a walker. Still not a who on the tally.
