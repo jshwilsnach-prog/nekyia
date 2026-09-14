@@ -24,6 +24,8 @@ This is not a startup pitch. Not a social experiment wearing a game. Not a score
 
 ## The law (read this if you read the code)
 
+The law is law.
+
 We are all one. Every part of the world, in different relations. All value is the same in relation to all.
 
 Money in the game equals **0**, or **1**, or **i** (the imaginary whole). Unchanging.
@@ -31,6 +33,8 @@ Money in the game equals **0**, or **1**, or **i** (the imaginary whole). Unchan
 - **0** — rank. Nobody more, nobody less. `asRank` always returns 0. The pile is ignored.
 - **1** — relation. Eye to eye. `asRelation` always returns 1. The name is ignored.
 - **i** — the whole that is not a binary. Not spendable. Not a third currency.
+
+The seated sit in relation to one another and to all that is. **π is part of that law**: a relation, not a rank, not a last digit.
 
 See `src/game/law.ts` in the source. The ledger cannot forget.
 
