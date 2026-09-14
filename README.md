@@ -81,6 +81,18 @@ If the law as made cannot sit with itself, seat a shielded name. There is no fir
 
 Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
 
+## A wallet to receive
+
+When you press **Descend** or **Watch**, 24 words are made once on this device. Restore them in **Zodl** (once **Zashi**) to receive and send shielded. The house does not custody. Rank is still 0. Transparent names (`t1`) are refused. You may walk with none.
+
+- Site: [zodl.com](https://zodl.com)
+- iOS: [Zodl on the App Store](https://apps.apple.com/app/id6444974742)
+- Android: [Zodl on Play](https://play.google.com/store/apps/details?id=co.electriccoin.zcash)
+- F-Droid: [Zodl FOSS](https://f-droid.org/packages/co.electriccoin.zcash.foss/)
+- How: [`WALLET.md`](https://github.com/jshwilsnach-prog/joshua/blob/main/WALLET.md) in the rooms
+
+We do not vendor their app. Players receive in their own wallet.
+
 ## Chronos, for now
 
 Seated this night:
