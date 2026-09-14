@@ -93,6 +93,12 @@ When you press **Descend** or **Watch**, 24 words are made once on this device. 
 
 We do not vendor their app. Players receive in their own wallet.
 
+## Table consensus
+
+See [`CONSENSUS.md`](./CONSENSUS.md). Same copy in the [rooms](https://github.com/jshwilsnach-prog/joshua) and [Aught](https://github.com/jshwilsnach-prog/aught).
+
+Law holds. No famous address. Unlabeled burn is not named here. Do not retry seed UI until buttons work. Never collect those words.
+
 ## Chronos, for now
 
 Seated this night:
