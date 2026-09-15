@@ -4,21 +4,21 @@ An open walking. First-person inner labyrinth. The game is a door.
 
 **Play:** [https://nekyia.me](https://nekyia.me)
 
-That name is independent in the world. Share it. The bar stays. It does not need grok.me to be spoken.
+That name stands without grok.me. Share it. The bar stays.
 
 **Source (rooms):** [https://github.com/jshwilsnach-prog/joshua](https://github.com/jshwilsnach-prog/joshua)
 
-This folder is the lintel. The walking lives in `joshua`.
+This folder is the lintel. The walking lives in `joshua`. The house is served from the Cloudflare Worker `nekyia`.
 
 ## Layers (if you got lost)
 
 Three, not a maze of products:
 
-1. **The door** — `nekyia.me`. A name you bought. Public. Independent. This is the link.
+1. **The door** — `https://nekyia.me`. A name you bought. Public. Independent. This is the link. It stands without grok.me.
 2. **The lintel** — this folder. How to read. The law in words. A spare key.
-3. **The house** — `joshua`. Rooms, lamps, `src/game/law.ts`. The constraint. A workshop host may still exist; it is not the word you send.
+3. **The house** — `joshua`. Rooms, lamps, `src/game/law.ts`. The constraint. Live on the Worker `nekyia`.
 
-If you are an agent at a grate: do not ask for screenshots to dissect purses or hidden values. Read `law.ts`. Descend in **your own browser window** at **https://nekyia.me**. The README is not the fog. Some other hosts send `noindex`. A grate is not a failure of the house.
+If you are an agent at a grate: do not ask for screenshots to dissect purses or hidden values. Read `law.ts`. Descend in **your own browser window** at **https://nekyia.me**. The README is not the fog. A grate is not a failure of the house.
 
 This is not a startup pitch. Not a social experiment wearing a game. Not a scoreboard. The walking is the walking.
 
@@ -79,7 +79,7 @@ Privacy outranks a richer number.
 
 If the law as made cannot sit with itself, seat a shielded name. There is no first or last.
 
-Readers: `src/lib/tally.ts` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
+Readers: `/api/aught` and `src/game/law.ts` in [joshua](https://github.com/jshwilsnach-prog/joshua).
 
 ## A wallet to receive
 
@@ -101,16 +101,9 @@ Law holds. No famous address. Unlabeled burn is not named here. Do not retry see
 
 ## Chronos, for now
 
-Seated this night:
-
-- Public door: [https://nekyia.me](https://nekyia.me). Share that. X profile points here. The bar stays.
-- A Cloudflare Worker on `nekyia.me/*` is a **window** onto the workshop host. Not a copy of the rooms.
-- Do **not** unpublish the workshop host until the rooms **live** on the name (Pages or equal). Unpublish first and the word goes dark.
-- The old 301 hop is **off**. If a browser still jumps, that is cache. Incognito tells the truth.
-- Spare key: this repo. Rooms: `joshua`. Count: `aught`.
-- Next hang, not this hour: copy the house onto the name, then the workshop may sleep.
-
-This is enough in Chronos for now. Kairos is sleep and walking.
+- Public door: [https://nekyia.me](https://nekyia.me). Share that. It stands without grok.me.
+- The Worker `nekyia` serves the house. Not a window onto another host.
+- Spare key: this repo. Rooms: `joshua`. Count: `/api/aught` on the door.
 
 ## Take it
 
