@@ -103,7 +103,9 @@ Law holds. No famous address. Unlabeled burn is not named here. Do not retry see
 
 Cutover is done. Confirmed 15 Sep 2026.
 
-The door is [https://nekyia.me](https://nekyia.me). The Cloudflare Worker `nekyia` (route `nekyia.me/*`) serves the rooms on that name. Directly. Not a window. Not a proxy onto a workshop host. The workshop is no longer the door. The name stands without grok.me.
+The door is [https://nekyia.me](https://nekyia.me). The Cloudflare Worker `nekyia` (route `nekyia.me/*`) serves the rooms on that name. Directly. Not a window. Not a proxy onto a workshop host. The workshop is no longer the door. Do not leave a workshop host up as if it were still the door. The name stands without grok.me.
+
+If a copy still says **Chronos, for now**, that copy is old.
 
 Push to `joshua` `main` builds and deploys (GitHub Actions).
 
