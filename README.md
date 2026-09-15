@@ -102,7 +102,7 @@ Law holds. No famous address. Unlabeled burn is not named here. Do not retry see
 ## Chronos, for now
 
 - Public door: [https://nekyia.me](https://nekyia.me). Share that. It stands without grok.me.
-- The Worker `nekyia` serves the house. Not a window onto another host.
+- The Worker `nekyia` serves the house.
 - Spare key: this repo. Rooms: `joshua`. Count: `/api/aught` on the door.
 
 ## Take it
