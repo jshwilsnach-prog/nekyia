@@ -99,11 +99,19 @@ See [`CONSENSUS.md`](./CONSENSUS.md). Same copy in the [rooms](https://github.co
 
 Law holds. No famous address. Unlabeled burn is not named here. Do not retry seed UI until buttons work. Never collect those words.
 
-## Chronos, for now
+## Chronos
 
-- Public door: [https://nekyia.me](https://nekyia.me). Share that. It stands without grok.me.
-- The Worker `nekyia` serves the house.
-- Spare key: this repo. Rooms: `joshua`. Count: `/api/aught` on the door.
+Cutover is done. Confirmed 15 Sep 2026.
+
+The door is [https://nekyia.me](https://nekyia.me). The Cloudflare Worker `nekyia` (route `nekyia.me/*`) serves the rooms on that name. Directly. Not a window. Not a proxy onto a workshop host. The workshop is no longer the door. The name stands without grok.me.
+
+Push to `joshua` `main` builds and deploys (GitHub Actions).
+
+- `/api/aught` — live. A UTC date and a whole number. Opening the door is the work.
+- `/api/walk` — live. A relay. Nothing stored. Nothing logged.
+- Share card: `https://nekyia.me/og.jpg`. Banner: `https://nekyia.me/x-banner.jpg`. Served from the door. Not grok.me.
+
+Spare key: this repo. Rooms: `joshua`.
 
 ## Take it
 
