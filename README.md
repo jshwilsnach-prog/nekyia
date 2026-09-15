@@ -110,7 +110,7 @@ If a copy still says **Chronos, for now**, that copy is old.
 Push to `joshua` `main` builds and deploys (GitHub Actions).
 
 - `/api/aught` — live. A UTC date and a whole number. Opening the door is the work.
-- `/api/walk` — live. A relay. Nothing stored. Nothing logged.
+- `/api/walk` — live. A relay. Nothing stored. Nothing logged. A socket hears one room. Many sockets can still knock.
 - Share card: `https://nekyia.me/og.jpg`. Banner: `https://nekyia.me/x-banner.jpg`. Served from the door. Not grok.me.
 
 Spare key: this repo. Rooms: `joshua`.
