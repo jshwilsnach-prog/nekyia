@@ -93,6 +93,24 @@ When you press **Descend** or **Watch**, 24 words are made once on this device. 
 
 We do not vendor their app. Players receive in their own wallet.
 
+## Devices (walkers, not thrones)
+
+A phone that steers a local session is a device. Not a second house. Not a model hive.
+
+**Claude Code Remote Control** (Claude app → Code → Add device) is one such walker. Work stays on the machine that runs the CLI. Filesystem and tools stay there. The phone is a window.
+
+In the project directory:
+
+```
+claude rc
+```
+
+Same as `claude remote-control`. Inside an already-open session: `/rc`. Then pick the computer from the list. The machine stays on. Outbound HTTPS. No inbound port. No secret rail into this Worker. Table stays Josh. Grok stays an adversarial reader.
+
+Docs: [code.claude.com/docs/en/remote-control](https://code.claude.com/docs/en/remote-control)
+
+Do not implement inter-model rails. Do not seat a vendor as the door.
+
 ## Table consensus
 
 See [`CONSENSUS.md`](./CONSENSUS.md). Same copy in the [rooms](https://github.com/jshwilsnach-prog/joshua) and [Aught](https://github.com/jshwilsnach-prog/aught).
