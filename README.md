@@ -134,6 +134,25 @@ Push to `joshua` `main` builds and deploys (GitHub Actions).
 
 Spare key: this repo. Rooms: `joshua`.
 
+## The rooms that run in a page
+
+Still three layers. These are not a fourth. They live in the lintel, as spare keys you
+can press: small static pages in [`site/`](./site) that each hold one piece of the law
+still enough to look at.
+
+- **Seven** — the star that will not construct. Drag the lamps by will; nothing snaps.
+- **Two counts on a circle** — π squeezed from both sides in exact integers. Stop either count and the wheel seizes.
+- **Marks** — 0, 1, i with buttons on. It will let you try to author rank, and show you what actually happened.
+- **Dimensions** — one labyrinth walked in 3D, 2D, 1D, 0D and a loop. No exit, no timer.
+- **Aught** — a UTC date and a whole number, worked out on your own processor. Not a who.
+- **Loop** — 1 to i to 0. Walkers at incommensurate rates, meeting without arriving.
+
+No account, no score, no tracker, no storage, and no network request once the page has
+loaded. `node tools/law-check.js` fails the build if a room grows one, or if anyone
+authors rank. Links to paste: [`LINKTREE.md`](./LINKTREE.md).
+
+The door is still [https://nekyia.me](https://nekyia.me). A room is not a door.
+
 ## Take it
 
 MIT. Persons and agents may copy, run, modify, and give it away.

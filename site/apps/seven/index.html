@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven — a star that will not construct</title>
+<meta name="description" content="Compass and unmarked straightedge refuse the seven-pointed star. Drag the lamps by will. The house will not grade you.">
+<link rel="icon" href="../../favicon.svg">
+<link rel="stylesheet" href="../../nekyia.css">
+</head>
+<body>
+<div class="wrap">
+  <div id="lintel"></div>
+
+  <h1>A star that will not construct</h1>
+  <p class="lede">Compass and unmarked straightedge refuse it. The twelve-month sky
+  refuses it. Seven will not sit in three hundred and sixty. Sight can count seven
+  lamps. It cannot construct the angle.</p>
+
+  <div class="stage"><canvas id="c"></canvas></div>
+
+  <div class="controls">
+    <label class="field">points
+      <input id="n" type="range" min="3" max="16" step="1" value="7">
+      <span id="nOut" class="mono">7</span>
+    </label>
+    <label class="field">step
+      <input id="k" type="range" min="1" max="7" step="1" value="3">
+      <span id="kOut" class="mono">3</span>
+    </label>
+    <button id="byWill" aria-pressed="true">by will</button>
+    <button id="bySight">by sight</button>
+    <button id="reset">scatter</button>
+  </div>
+
+  <div class="panel">
+    <p class="readout" id="verdict"></p>
+    <p class="readout" id="gaps"></p>
+  </div>
+
+  <p class="note" style="margin-top:1.25rem">
+    <strong>By will</strong> lets you drag each lamp. Nothing snaps, nothing scores,
+    nothing is wrong. <strong>By sight</strong> lays them at 360/n, which for seven is
+    51.428571&hellip; — a repeat with no last digit, the same refusal the compass makes.
+    A construction is exact or it is not. Deviation is shown because it is true, not
+    because it is a mark against you.
+  </p>
+
+  <p class="small faint" style="margin-top:1rem">
+    Constructibility is Gauss&ndash;Wantzel: a regular n-gon yields to compass and
+    unmarked straightedge exactly when n is a power of two times distinct Fermat primes
+    (3, 5, 17, 257, 65537). Seven is none of these. Neither is nine, eleven, or thirteen.
+  </p>
+
+  <div id="foot"></div>
+</div>
+
+<script src="../../law.js"></script>
+<script src="../../room.js"></script>
+<script>
+(function () {
+  "use strict";
+  ROOM.lintel("seven");
+
+  var FERMAT = [3, 5, 17, 257, 65537];
+  var canvas = document.getElementById("c");
+  var nIn = document.getElementById("n");
+  var kIn = document.getElementById("k");
+  var nOut = document.getElementById("nOut");
+  var kOut = document.getElementById("kOut");
+  var verdict = document.getElementById("verdict");
+  var gapsOut = document.getElementById("gaps");
+  var byWill = document.getElementById("byWill");
+  var bySight = document.getElementById("bySight");
+
+  var view = null;
+  var angles = [];
+  var willed = true;
+  var dragging = -1;
+
+  function constructible(n) {
+    var m = n;
+    while (m % 2 === 0) m /= 2;
+    if (m === 1) return { ok: true, why: "a power of two. Bisection alone reaches it." };
+    var used = [];
+    for (var i = 0; i < FERMAT.length; i++) {
+      if (m % FERMAT[i] === 0) {
+        m /= FERMAT[i];
+        used.push(FERMAT[i]);
+      }
+    }
+    if (m !== 1) {
+      return { ok: false, why: "not a power of two times distinct Fermat primes." };
+    }
+    return { ok: true, why: "two-power times " + used.join(" × ") + ", all Fermat primes." };
+  }
+
+  function layBySight(n) {
+    angles = [];
+    for (var i = 0; i < n; i++) angles.push((i * 2 * Math.PI) / n - Math.PI / 2);
+  }
+
+  function scatter(n) {
+    layBySight(n);
+    for (var i = 0; i < n; i++) angles[i] += (Math.random() - 0.5) * 0.7;
+  }
+
+  function geometry() {
+    var cx = view.w / 2;
+    var cy = view.h / 2;
+    var r = Math.min(view.w, view.h) * 0.36;
+    return { cx: cx, cy: cy, r: r };
+  }
+
+  function draw() {
+    var ctx = view.ctx;
+    var g = geometry();
+    var n = angles.length;
+    var k = Math.min(+kIn.value, Math.floor(n / 2));
+
+    ctx.clearRect(0, 0, view.w, view.h);
+
+    // the circle: the thing that does not care how many you want
+    ctx.strokeStyle = ROOM.token("--line", "#222");
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(g.cx, g.cy, g.r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    var pts = angles.map(function (a) {
+      return { x: g.cx + Math.cos(a) * g.r, y: g.cy + Math.sin(a) * g.r };
+    });
+
+    // the star polygon {n/k}
+    if (k >= 1 && n >= 3) {
+      ctx.strokeStyle = ROOM.token("--lamp", "#e8a33d");
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      var seen = new Array(n).fill(false);
+      for (var start = 0; start < n; start++) {
+        if (seen[start]) continue;
+        var idx = start;
+        ctx.moveTo(pts[idx].x, pts[idx].y);
+        do {
+          seen[idx] = true;
+          idx = (idx + k) % n;
+          ctx.lineTo(pts[idx].x, pts[idx].y);
+        } while (idx !== start);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // the lamps
+    for (var i = 0; i < n; i++) {
+      var p = pts[i];
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
+      ctx.fillStyle = ROOM.token("--lamp-soft", "rgba(232,163,61,.14)");
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = ROOM.token("--lamp", "#e8a33d");
+      ctx.fill();
+    }
+
+    // the whole in the middle: i, not a count
+    ctx.fillStyle = ROOM.token("--whole", "#b08ad8");
+    ctx.font = "500 15px " + ROOM.token("--mono", "monospace");
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.globalAlpha = 0.6;
+    ctx.fillText(NEKYIA.WHOLE, g.cx, g.cy);
+    ctx.globalAlpha = 1;
+  }
+
+  function report() {
+    var n = angles.length;
+    var c = constructible(n);
+    var exact = 360 / n;
+    var exactStr = Number.isInteger(exact)
+      ? exact + "° exactly"
+      : exact.toFixed(6) + "…°, no last digit";
+
+    verdict.textContent =
+      "n = " + n + "  —  " + (c.ok ? "constructible" : "refused") + "\n" +
+      "360/" + n + " = " + exactStr + "\n" +
+      c.why;
+
+    var sorted = angles.slice().sort(function (a, b) { return a - b; });
+    var gaps = [];
+    for (var i = 0; i < sorted.length; i++) {
+      var next = i === sorted.length - 1 ? sorted[0] + Math.PI * 2 : sorted[i + 1];
+      gaps.push(((next - sorted[i]) * 180) / Math.PI);
+    }
+    var min = Math.min.apply(null, gaps);
+    var max = Math.max.apply(null, gaps);
+    gapsOut.textContent =
+      "your gaps: " + gaps.map(function (x) { return x.toFixed(2); }).join("  ") + "\n" +
+      "spread: " + (max - min).toFixed(3) + "°  —  " +
+      (max - min < 1e-9 ? "even. still not a construction." : "uneven. still not a failure.") +
+      "\n" +
+      "rank of this arrangement: " + NEKYIA.asRank(max - min) +
+      "   relation: " + NEKYIA.asRelation("walker");
+  }
+
+  function redraw() {
+    draw();
+    report();
+  }
+
+  function resize() {
+    view = ROOM.fit(canvas, 16 / 10);
+    redraw();
+  }
+
+  function nearest(pos) {
+    var g = geometry();
+    var best = -1;
+    var bestD = 22;
+    for (var i = 0; i < angles.length; i++) {
+      var x = g.cx + Math.cos(angles[i]) * g.r;
+      var y = g.cy + Math.sin(angles[i]) * g.r;
+      var d = Math.hypot(x - pos.x, y - pos.y);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+
+  function setMode(w) {
+    willed = w;
+    byWill.setAttribute("aria-pressed", String(w));
+    bySight.setAttribute("aria-pressed", String(!w));
+    if (!w) layBySight(angles.length);
+    redraw();
+  }
+
+  function down(ev) {
+    if (!willed) return;
+    dragging = nearest(ROOM.pointer(canvas, ev));
+    if (dragging >= 0) ev.preventDefault();
+  }
+
+  function move(ev) {
+    if (dragging < 0) return;
+    ev.preventDefault();
+    var p = ROOM.pointer(canvas, ev);
+    var g = geometry();
+    angles[dragging] = Math.atan2(p.y - g.cy, p.x - g.cx);
+    redraw();
+  }
+
+  function up() { dragging = -1; }
+
+  canvas.addEventListener("mousedown", down);
+  canvas.addEventListener("touchstart", down, { passive: false });
+  window.addEventListener("mousemove", move);
+  window.addEventListener("touchmove", move, { passive: false });
+  window.addEventListener("mouseup", up);
+  window.addEventListener("touchend", up);
+
+  nIn.addEventListener("input", function () {
+    var n = +nIn.value;
+    nOut.textContent = n;
+    kIn.max = Math.max(1, Math.floor(n / 2));
+    if (+kIn.value > +kIn.max) kIn.value = kIn.max;
+    kOut.textContent = kIn.value;
+    if (willed) scatter(n); else layBySight(n);
+    redraw();
+  });
+
+  kIn.addEventListener("input", function () {
+    kOut.textContent = kIn.value;
+    redraw();
+  });
+
+  byWill.addEventListener("click", function () { setMode(true); });
+  bySight.addEventListener("click", function () { setMode(false); });
+  document.getElementById("reset").addEventListener("click", function () {
+    scatter(angles.length);
+    setMode(true);
+  });
+
+  ROOM.onResize(resize);
+  scatter(7);
+  ROOM.foot("no score · nothing stored");
+  resize();
+})();
+</script>
+</body>
+</html>

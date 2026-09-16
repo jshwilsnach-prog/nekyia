@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two counts on a circle</title>
+<meta name="description" content="One count from a guessed end. One from the unit underfoot. They figure a meeting, not a who. If either stops, the wheel seizes.">
+<link rel="icon" href="../../favicon.svg">
+<link rel="stylesheet" href="../../nekyia.css">
+<style>
+  .digits {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    word-break: break-all;
+    color: var(--ink-faint);
+  }
+  .digits b { color: var(--lamp); font-weight: 600; }
+  .counts { display: grid; gap: 0.75rem; grid-template-columns: 1fr; margin-top: 1rem; }
+  @media (min-width: 46rem) { .counts { grid-template-columns: 1fr 1fr; } }
+  .count h3 { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-dim); }
+  .count[data-stopped="true"] { border-color: var(--rank); opacity: 0.55; }
+  .seized { color: var(--whole); font-family: var(--mono); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="lintel"></div>
+
+  <h1>Two counts on a circle</h1>
+  <p class="lede">A line asked to become a world. No last digit. One being counts from a
+  guessed end &mdash; a bound, not a finish. One being counts from the perfect now &mdash;
+  the unit underfoot, not the whole circle. If either stops, the wheel seizes.</p>
+
+  <div class="stage"><canvas id="c"></canvas></div>
+
+  <div class="controls">
+    <button id="walk" aria-pressed="false">walk</button>
+    <button id="step">one step</button>
+    <button id="restart">back to six</button>
+  </div>
+
+  <div class="counts">
+    <div class="panel count" id="outerPanel">
+      <h3>from a guessed end</h3>
+      <p class="small dim">Circumscribed. Always too much. It knows a bound it has not earned.</p>
+      <p class="readout" id="outerVal"></p>
+      <button id="stopOuter">stop this count</button>
+    </div>
+    <div class="panel count" id="innerPanel">
+      <h3>from the unit underfoot</h3>
+      <p class="small dim">Inscribed. Always too little. It knows only what it has stepped.</p>
+      <p class="readout" id="innerVal"></p>
+      <button id="stopInner">stop this count</button>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:1rem">
+    <p class="small dim" style="margin-bottom:0.5rem">
+      The meeting, as far as the two have figured it. Lit digits are agreed by both.
+      Nobody holds them alone.
+    </p>
+    <p class="digits" id="meet"></p>
+    <p class="readout" id="status"></p>
+  </div>
+
+  <p class="note" style="margin-top:1.25rem">
+    Archimedes, in exact integers: the semiperimeters of the circumscribed and inscribed
+    n-gons are the harmonic and geometric means of the previous pair. Sides double each
+    step &mdash; 6, 12, 24, 48 &mdash; and the two counts squeeze a value neither of them
+    owns. Arithmetic runs at eighty decimal places in whole numbers, so no float rounds
+    the meeting for you.
+  </p>
+
+  <div id="foot"></div>
+</div>
+
+<script src="../../law.js"></script>
+<script src="../../room.js"></script>
+<script>
+(function () {
+  "use strict";
+  ROOM.lintel("pi");
+
+  var P = 80n;                       // decimal places kept
+  var S = 10n ** P;                  // fixed-point scale
+
+  function isqrt(v) {                // integer square root, Newton
+    if (v < 0n) throw new RangeError("negative");
+    if (v < 2n) return v;
+    var x = 1n << (BigInt(v.toString(2).length) / 2n + 1n);
+    while (true) {
+      var y = (x + v / x) >> 1n;
+      if (y >= x) return x;
+      x = y;
+    }
+  }
+
+  function fixedToString(v) {        // v is value * S
+    var s = v.toString().padStart(Number(P) + 1, "0");
+    var cut = s.length - Number(P);
+    return s.slice(0, cut) + "." + s.slice(cut);
+  }
+
+  var state = null;
+
+  function reset() {
+    state = {
+      k: 0,                          // doublings
+      outer: 2n * isqrt(3n * S * S), // 6 * tan(30deg) = 2 sqrt 3
+      inner: 3n * S,                 // 6 * sin(30deg) = 3
+      outerStopped: false,
+      innerStopped: false,
+      walking: false
+    };
+  }
+
+  function step() {
+    if (state.outerStopped || state.innerStopped) return false;
+    var a = state.outer;
+    var b = state.inner;
+    var a2 = (2n * a * b) / (a + b);          // harmonic mean
+    var b2 = isqrt(a2 * b);                   // geometric mean
+    if (a2 === a && b2 === b) return false;   // the arithmetic has nothing left to give
+    state.outer = a2;
+    state.inner = b2;
+    state.k += 1;
+    return true;
+  }
+
+  function agreedPrefix(lo, hi) {
+    var a = fixedToString(lo);
+    var b = fixedToString(hi);
+    var n = 0;
+    while (n < a.length && n < b.length && a[n] === b[n]) n++;
+    return { text: a, agree: n };
+  }
+
+  function sides() {
+    // 6 * 2^k, printed plainly while it is plain
+    var n = 6n * (1n << BigInt(state.k));
+    var s = n.toString();
+    return s.length <= 12 ? s : "6 × 2^" + state.k + " (" + s.length + " digits)";
+  }
+
+  var canvas = document.getElementById("c");
+  var view = null;
+  var spin = 0;
+
+  function drawWhole(ctx, x, y, pw, ph) {
+    var cx = x + pw / 2, cy = y + ph / 2;
+    var r = Math.min(pw, ph) * 0.34;
+    var drawn = Math.min(6 * Math.pow(2, state.k), 96);
+
+    function poly(radius, color) {
+      ctx.beginPath();
+      for (var i = 0; i <= drawn; i++) {
+        var a = spin + (i * 2 * Math.PI) / drawn;
+        var px = cx + Math.cos(a) * radius;
+        var py = cy + Math.sin(a) * radius;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = ROOM.token("--line", "#222");
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    poly(r / Math.cos(Math.PI / drawn), state.outerStopped ? RANKC() : LAMPC());
+    poly(r, state.innerStopped ? RANKC() : RELC());
+
+    var seized = state.outerStopped || state.innerStopped;
+    ctx.fillStyle = seized ? RANKC() : ROOM.token("--whole", "#b08ad8");
+    ctx.font = "500 15px " + MONO();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.globalAlpha = 0.65;
+    ctx.fillText(seized ? "seized" : NEKYIA.WHOLE, cx, cy);
+    ctx.globalAlpha = 1;
+
+    label(ctx, cx, y + ph - 16,
+      drawn >= 96 ? "the whole turn \u2014 drawn at 96 sides, walked at " + sides()
+                  : "the whole turn \u2014 " + sides() + " sides");
+  }
+
+  // One facet, magnified. The gap shrinks with the square of the side count, so
+  // the radial direction is exaggerated far more than the tangential one. That
+  // exaggeration is stated rather than hidden: sight cannot finish the turn.
+  function drawFacet(ctx, x, y, pw, ph) {
+    var cx = x + pw / 2, cy = y + ph / 2;
+    var n = 6 * Math.pow(2, state.k);
+    var half = Math.PI / n;
+    var g = Math.pow(Math.sin(half / 2), 2);      // half the radial gap, accurate near 0
+    var yz = (ph * 0.36) / Math.sin(half);        // tangential magnification
+    var xz = (pw * 0.22) / g;                     // radial magnification
+
+    // the inscribed chord: flat, the unit underfoot
+    ctx.strokeStyle = state.innerStopped ? RANKC() : RELC();
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(cx - g * xz, cy - Math.sin(half) * yz);
+    ctx.lineTo(cx - g * xz, cy + Math.sin(half) * yz);
+    ctx.stroke();
+
+    // the circumscribed edge: tangent, the guessed end
+    ctx.strokeStyle = state.outerStopped ? RANKC() : LAMPC();
+    ctx.beginPath();
+    ctx.moveTo(cx + g * xz, cy - Math.sin(half) * yz);
+    ctx.lineTo(cx + g * xz, cy + Math.sin(half) * yz);
+    ctx.stroke();
+
+    // the arc itself, between them, touching each exactly once
+    ctx.strokeStyle = ROOM.token("--ink-dim", "#9a968d");
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    var steps = 120;
+    for (var i = 0; i <= steps; i++) {
+      var t = -half + (2 * half * i) / steps;
+      var dx = g - 2 * Math.pow(Math.sin(t / 2), 2);
+      var sx = cx + dx * xz;
+      var sy = cy + Math.sin(t) * yz;
+      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+
+    // the gap, marked
+    ctx.strokeStyle = ROOM.token("--line", "#222");
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx - g * xz, cy);
+    ctx.lineTo(cx + g * xz, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    var ex = xz / yz;
+    label(ctx, cx, y + ph - 16,
+      "one facet \u2014 radial exaggeration " + exp(ex) + "\u00d7");
+    label(ctx, cx, y + 20, "the gap the two counts leave");
+  }
+
+  function exp(v) {
+    if (!isFinite(v)) return "\u221e";
+    if (v < 10000) return Math.round(v).toLocaleString();
+    var e = Math.floor(Math.log10(v));
+    return (v / Math.pow(10, e)).toFixed(1) + "e" + e;
+  }
+
+  function label(ctx, cx, cy, text) {
+    ctx.fillStyle = ROOM.token("--ink-faint", "#64615b");
+    ctx.font = "11px " + MONO();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, cx, cy);
+  }
+
+  function MONO() { return ROOM.token("--mono", "monospace"); }
+  function LAMPC() { return ROOM.token("--lamp", "#e8a33d"); }
+  function RELC() { return ROOM.token("--relation", "#7fb2d9"); }
+  function RANKC() { return ROOM.token("--rank", "#6b6862"); }
+
+  function draw() {
+    var ctx = view.ctx;
+    var w = view.w, h = view.h;
+    ctx.clearRect(0, 0, w, h);
+    var split = w < 520 ? w : Math.round(w * 0.5);
+    if (w < 520) {
+      drawWhole(ctx, 0, 0, w, h);
+      return;
+    }
+    drawWhole(ctx, 0, 0, split, h);
+    ctx.strokeStyle = ROOM.token("--line-soft", "#14171d");
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(split + 0.5, 16);
+    ctx.lineTo(split + 0.5, h - 16);
+    ctx.stroke();
+    drawFacet(ctx, split, 0, w - split, h);
+  }
+
+  function report() {
+    document.getElementById("outerVal").textContent = fixedToString(state.outer).slice(0, 46) + "…";
+    document.getElementById("innerVal").textContent = fixedToString(state.inner).slice(0, 46) + "…";
+    document.getElementById("outerPanel").dataset.stopped = String(state.outerStopped);
+    document.getElementById("innerPanel").dataset.stopped = String(state.innerStopped);
+
+    var m = agreedPrefix(state.inner, state.outer);
+    var agreed = m.text.slice(0, m.agree);
+    var rest = m.text.slice(m.agree);
+    var el = document.getElementById("meet");
+    el.innerHTML = "";
+    var b = document.createElement("b");
+    b.textContent = agreed;
+    el.appendChild(b);
+    el.appendChild(document.createTextNode(rest));
+
+    var decimals = Math.max(0, m.agree - 2);   // "3." is two characters
+    var seized = state.outerStopped || state.innerStopped;
+    document.getElementById("status").textContent =
+      "sides: " + sides() + "\n" +
+      "agreed decimals: " + decimals + "\n" +
+      (seized
+        ? "one count has stopped. the wheel seizes. two pits. a religion.\n" +
+          "the other count keeps a bound it cannot check. rank of that bound: " + NEKYIA.asRank(decimals)
+        : "neither count holds the number. they figure a meeting, not a who.\n" +
+          "rank of either count: " + NEKYIA.asRank(decimals) +
+          "   relation between them: " + NEKYIA.asRelation("count"));
+  }
+
+  function redraw() { draw(); report(); }
+
+  function resize() {
+    view = ROOM.fit(canvas, 16 / 9);
+    redraw();
+  }
+
+  var last = 0;
+  function frame(t) {
+    if (!state.outerStopped && !state.innerStopped) spin += 0.0015;
+    if (state.walking && t - last > 260) {
+      last = t;
+      if (!step()) {
+        state.walking = false;
+        walkBtn.setAttribute("aria-pressed", "false");
+      }
+    }
+    redraw();
+    requestAnimationFrame(frame);
+  }
+
+  var walkBtn = document.getElementById("walk");
+  walkBtn.addEventListener("click", function () {
+    state.walking = !state.walking && !state.outerStopped && !state.innerStopped;
+    walkBtn.setAttribute("aria-pressed", String(state.walking));
+  });
+  document.getElementById("step").addEventListener("click", function () { step(); redraw(); });
+  document.getElementById("stopOuter").addEventListener("click", function () {
+    state.outerStopped = true; state.walking = false;
+    walkBtn.setAttribute("aria-pressed", "false"); redraw();
+  });
+  document.getElementById("stopInner").addEventListener("click", function () {
+    state.innerStopped = true; state.walking = false;
+    walkBtn.setAttribute("aria-pressed", "false"); redraw();
+  });
+  document.getElementById("restart").addEventListener("click", function () {
+    reset(); walkBtn.setAttribute("aria-pressed", "false"); redraw();
+  });
+
+  ROOM.onResize(resize);
+  reset();
+  ROOM.foot("nothing stored · exact integers, not floats");
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

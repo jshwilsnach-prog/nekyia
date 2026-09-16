@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marks — 0, 1, i</title>
+<meta name="description" content="The value algebra you can press. Rank is 0, relation is 1, i is the whole. Try to author rank and watch it refuse.">
+<link rel="icon" href="../../favicon.svg">
+<link rel="stylesheet" href="../../nekyia.css">
+<style>
+  .pile {
+    display: flex; flex-wrap: wrap; gap: 0.35rem;
+    min-height: 3.2rem; align-content: flex-start;
+    background: var(--bg-sink); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.7rem;
+  }
+  .chip {
+    font-family: var(--mono); font-size: 0.9rem;
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 0.1rem 0.5rem; background: var(--bg-raise);
+  }
+  .big {
+    font-family: var(--mono); font-size: 2.6rem; line-height: 1;
+    display: block; margin: 0.4rem 0 0.2rem;
+  }
+  .ledger {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--ink-dim);
+    max-height: 15rem; overflow-y: auto; margin: 0; padding: 0; list-style: none;
+  }
+  .ledger li { padding: 0.25rem 0; border-bottom: 1px solid var(--line-soft); }
+  .ledger li:last-child { border-bottom: 0; }
+  .ok { color: var(--relation); }
+  .refused { color: var(--whole); }
+  select { font: inherit; font-family: var(--mono); font-size: 0.85rem;
+    background: var(--bg-raise); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 0.4rem 0.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="lintel"></div>
+
+  <h1>Marks</h1>
+  <p class="lede">All money equals 0, or 1, or i. Nobody more, nobody less; eye to eye;
+  and the whole, which is orthogonal to both. This room is that law with buttons on it.
+  Every result below comes out of the same file the game runs on.</p>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>the pile</h3>
+      <div class="pile" id="pile"></div>
+      <div class="controls">
+        <button data-add="0">add 0</button>
+        <button data-add="1">add 1</button>
+        <button data-add="i">add i</button>
+        <button id="clear">empty it</button>
+      </div>
+      <p class="small dim" style="margin:0">it folds to</p>
+      <strong class="big" id="fold">0</strong>
+      <p class="readout" id="pileNote"></p>
+    </div>
+
+    <div class="panel">
+      <h3>the exchange</h3>
+      <p class="small dim">Nothing becomes i by trade. The whole is not for sale, and it
+      does not buy.</p>
+      <div class="controls">
+        <select id="from"><option>0</option><option>1</option><option>i</option></select>
+        <span class="mono dim">&rarr;</span>
+        <select id="to"><option>0</option><option>1</option><option>i</option></select>
+        <button id="trade">trade</button>
+      </div>
+      <strong class="big" id="tradeOut">&mdash;</strong>
+      <p class="readout" id="tradeNote"></p>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:1rem">
+    <h3>author rank</h3>
+    <p class="small dim">The law is frozen at runtime. These buttons genuinely try to
+    break it in this page, right now, and report what actually happened. The only way
+    through is to edit the file &mdash; and then it is your fork, not this house.</p>
+    <div class="controls">
+      <button data-attack="const">NEKYIA.RANK = 5</button>
+      <button data-attack="fn">NEKYIA.sum = () =&gt; 99</button>
+      <button data-attack="stack">sum(1, 1) &mdash; make it 2</button>
+      <button data-attack="mint">exchange(1, "i") &mdash; mint the whole</button>
+      <button data-attack="pile">fold a pile of ten thousand 1s</button>
+    </div>
+    <p class="readout" id="attackOut">press one.</p>
+  </div>
+
+  <div class="panel" style="margin-top:1rem">
+    <h3>the ledger</h3>
+    <p class="small dim">Append-only while you are here. It cannot forget what you did.
+    It also cannot remember you: no name, no storage, no request leaves this page. Close
+    the tab and the ledger is gone, which is the point.</p>
+    <ul class="ledger" id="ledger"></ul>
+  </div>
+
+  <div id="foot"></div>
+</div>
+
+<script src="../../law.js"></script>
+<script src="../../room.js"></script>
+<script>
+(function () {
+  "use strict";
+  ROOM.lintel("marks");
+
+  var pile = [];
+  var ledgerEl = document.getElementById("ledger");
+  var pileEl = document.getElementById("pile");
+
+  function parseMark(s) { return s === "i" ? NEKYIA.WHOLE : Number(s); }
+  function markClass(m) { return "mark-" + String(m); }
+
+  function log(text, kind) {
+    var li = document.createElement("li");
+    li.className = kind || "";
+    li.textContent = text;
+    ledgerEl.insertBefore(li, ledgerEl.firstChild);
+    while (ledgerEl.children.length > 200) ledgerEl.removeChild(ledgerEl.lastChild);
+  }
+
+  function renderPile() {
+    pileEl.innerHTML = "";
+    var show = pile.slice(-120);
+    show.forEach(function (m) {
+      var s = document.createElement("span");
+      s.className = "chip " + markClass(m);
+      s.textContent = String(m);
+      pileEl.appendChild(s);
+    });
+    if (pile.length > show.length) {
+      var more = document.createElement("span");
+      more.className = "chip faint";
+      more.textContent = "+" + (pile.length - show.length) + " more";
+      pileEl.appendChild(more);
+    }
+    var folded = NEKYIA.fold(pile);
+    var foldEl = document.getElementById("fold");
+    foldEl.textContent = String(folded);
+    foldEl.className = "big " + markClass(folded);
+    document.getElementById("pileNote").textContent =
+      "marks in the pile: " + pile.length + "\n" +
+      "asRank(" + pile.length + ") = " + NEKYIA.asRank(pile.length) + "   — the pile is ignored\n" +
+      "asRelation(\"you\") = " + NEKYIA.asRelation("you") + "   — the name is ignored";
+  }
+
+  document.querySelectorAll("[data-add]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var m = parseMark(b.dataset.add);
+      var before = NEKYIA.fold(pile);
+      pile.push(m);
+      var after = NEKYIA.fold(pile);
+      renderPile();
+      log("add " + String(m) + "  →  pile of " + pile.length +
+          " folds " + String(before) + " to " + String(after));
+    });
+  });
+
+  document.getElementById("clear").addEventListener("click", function () {
+    var n = pile.length;
+    pile = [];
+    renderPile();
+    log("emptied " + n + " marks. rank before: " + NEKYIA.asRank(n) + ". rank after: " + NEKYIA.asRank(0));
+  });
+
+  document.getElementById("trade").addEventListener("click", function () {
+    var from = parseMark(document.getElementById("from").value);
+    var to = parseMark(document.getElementById("to").value);
+    var out = NEKYIA.exchange(from, to);
+    var el = document.getElementById("tradeOut");
+    if (out === null) {
+      el.textContent = "refused";
+      el.className = "big refused";
+      document.getElementById("tradeNote").textContent =
+        String(from) + " → " + String(to) + " is not a trade.\n" +
+        (from === NEKYIA.WHOLE || to === NEKYIA.WHOLE
+          ? "the whole is orthogonal. it does not convert, either way."
+          : "rank and relation are not each other's currency.");
+      log("exchange(" + String(from) + ", " + String(to) + ") → refused", "refused");
+    } else {
+      el.textContent = String(out);
+      el.className = "big " + markClass(out);
+      document.getElementById("tradeNote").textContent =
+        "a mark for the same mark. nothing moved, and nothing was owed.";
+      log("exchange(" + String(from) + ", " + String(to) + ") → " + String(out), "ok");
+    }
+  });
+
+  var attacks = {
+    const: function () {
+      try {
+        NEKYIA.RANK = 5;
+        return "NEKYIA.RANK = 5  →  silently ignored. RANK is still " + NEKYIA.RANK + ".";
+      } catch (e) {
+        return "NEKYIA.RANK = 5  →  " + e.name + ": " + e.message +
+               "\nRANK is still " + NEKYIA.RANK + ". the object is frozen.";
+      }
+    },
+    fn: function () {
+      try {
+        NEKYIA.sum = function () { return 99; };
+        return "NEKYIA.sum = () => 99  →  ignored. sum(1,1) is still " + NEKYIA.sum(1, 1) + ".";
+      } catch (e) {
+        return "NEKYIA.sum = () => 99  →  " + e.name + ": " + e.message +
+               "\nsum(1,1) is still " + NEKYIA.sum(1, 1) + ".";
+      }
+    },
+    stack: function () {
+      return "sum(1, 1) = " + NEKYIA.sum(1, 1) +
+             "\nrelation does not stack into rank. two eyes meeting is still one meeting.";
+    },
+    mint: function () {
+      var r = NEKYIA.exchange(1, NEKYIA.WHOLE);
+      return "exchange(1, \"i\") = " + String(r) +
+             "\nthe whole cannot be minted from a pile, or from a favour, or from a crowd.";
+    },
+    pile: function () {
+      var big = new Array(10000).fill(NEKYIA.RELATION);
+      var f = NEKYIA.fold(big);
+      return "fold(10000 × 1) = " + String(f) +
+             "\nten thousand relations are one relation. asRank(10000) = " + NEKYIA.asRank(10000) + ".";
+    }
+  };
+
+  document.querySelectorAll("[data-attack]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var out = attacks[b.dataset.attack]();
+      document.getElementById("attackOut").textContent = out;
+      log(b.textContent.trim() + "  →  held", "ok");
+    });
+  });
+
+  renderPile();
+  log("ledger opened. it remembers marks, never a who.");
+  ROOM.foot("frozen at runtime · nothing stored");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aught — a date and a whole number</title>
+<meta name="description" content="Proof of work with nothing to prove about you. A UTC date and a whole number. Not a who.">
+<link rel="icon" href="../../favicon.svg">
+<link rel="stylesheet" href="../../nekyia.css">
+<style>
+  .open {
+    font-family: var(--mono); font-size: clamp(1.1rem, 4.5vw, 1.9rem);
+    color: var(--lamp); word-break: break-all; margin: 0.5rem 0 0.25rem;
+  }
+  .hash { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint); word-break: break-all; }
+  .hash b { color: var(--relation); }
+  .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 1rem 0 0; }
+  .bar span { display: block; height: 100%; width: 0; background: var(--lamp); transition: width .2s linear; }
+  .refuse { color: var(--whole); }
+</style>
+</head>
+<body>
+<div class="wrap wrap--narrow">
+  <div id="lintel"></div>
+
+  <h1>A date and a whole number</h1>
+  <p class="lede">Aught is proof of work that links to Nekyia. Opening the play door is the
+  work. What comes out is a UTC date and a whole number &mdash; never an address, never a
+  key, never a tip total, never a person. Even a perfect proof would not name a walker.</p>
+
+  <div class="panel">
+    <p class="small dim" style="margin:0">today, in UTC, which is the only thing this asks of the world</p>
+    <p class="mono" id="date" style="font-size:1.1rem;margin:.3rem 0 0"></p>
+  </div>
+
+  <div class="controls">
+    <label class="field">work
+      <input id="bits" type="range" min="8" max="26" step="1" value="18">
+      <span id="bitsOut" class="mono">18</span> bits
+    </label>
+    <button id="go">open</button>
+    <button id="stop" disabled>stop</button>
+  </div>
+
+  <div class="panel">
+    <p class="small dim" style="margin:0">the opening</p>
+    <p class="open" id="open">&mdash;</p>
+    <p class="hash" id="hash"></p>
+    <div class="bar"><span id="bar"></span></div>
+    <p class="readout" id="stats" style="margin-top:.75rem"></p>
+    <div class="controls" style="margin-bottom:0">
+      <button id="copy" disabled>copy the opening</button>
+      <button id="verify" disabled>check it again</button>
+    </div>
+  </div>
+
+  <h2>What this refuses</h2>
+  <p class="note">
+    There is no field for a name here, and there will not be one. No address, no viewing
+    key, no email, no handle, no wallet. Nothing is sent anywhere &mdash; the hashing runs
+    in this tab on your own processor, and the page makes no network request at all once
+    it has loaded. Nothing is written to storage. Reload and today's work is gone, which
+    costs you a few seconds and costs a tally everything it wanted.
+  </p>
+  <p class="note refuse">
+    An opening is not a login and not a rank. Two walkers who both opened the door today
+    hold the same thing. A walker who opened it a thousand times holds the same thing.
+    asRank(anything) is 0, and that is not a consolation, it is the design.
+  </p>
+
+  <h2>Why work at all</h2>
+  <p class="note">
+    Because a cost that cannot be pointed at a person is the only kind worth asking for.
+    The statement is <em>there exists an opening</em>. The witness &mdash; which nonce, on
+    which machine, by whose hands &mdash; stays with you. A homomorphic tally of these
+    would still be a number, not a who. Do not store a richer number because it is
+    encrypted.
+  </p>
+
+  <div id="foot"></div>
+</div>
+
+<script src="../../law.js"></script>
+<script src="../../sha256.js"></script>
+<script src="../../room.js"></script>
+<script>
+(function () {
+  "use strict";
+  ROOM.lintel("aught");
+
+  function utcDate() {
+    var d = new Date();
+    return d.getUTCFullYear() + "-" +
+      String(d.getUTCMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getUTCDate()).padStart(2, "0");
+  }
+
+  var date = utcDate();
+  document.getElementById("date").textContent = date;
+
+  var bitsIn = document.getElementById("bits");
+  var running = false;
+  var nonce = 0;
+  var tried = 0;
+  var started = 0;
+  var result = null;
+
+  function target() { return +bitsIn.value; }
+
+  function show(found) {
+    var openEl = document.getElementById("open");
+    var hashEl = document.getElementById("hash");
+    if (!found) {
+      openEl.textContent = "—";
+      hashEl.textContent = "";
+      return;
+    }
+    openEl.textContent = found.date + "  ·  " + found.nonce;
+    var lead = Math.floor(found.bits / 4);
+    hashEl.innerHTML = "";
+    var b = document.createElement("b");
+    b.textContent = found.hash.slice(0, lead);
+    hashEl.appendChild(b);
+    hashEl.appendChild(document.createTextNode(found.hash.slice(lead)));
+  }
+
+  function stats(done) {
+    var secs = (performance.now() - started) / 1000;
+    var rate = secs > 0 ? tried / secs : 0;
+    document.getElementById("stats").textContent =
+      "tried: " + tried.toLocaleString() + "   rate: " + Math.round(rate / 1000) + " kH/s\n" +
+      "expected tries at " + target() + " bits: ~" + Math.pow(2, target()).toLocaleString() + "\n" +
+      (done
+        ? "opened in " + (secs < 1 ? Math.round(secs * 1000) + "ms" : secs.toFixed(1) + "s") + ". asRank(" + tried + ") = " + NEKYIA.asRank(tried) +
+          "   asRelation(\"walker\") = " + NEKYIA.asRelation("walker") + "\n" +
+          "the number above is the work. it is not you, and it never was."
+        : running ? "working. nothing is leaving this tab." : "idle.");
+    document.getElementById("bar").style.width =
+      Math.min(100, (tried / Math.pow(2, target())) * 100).toFixed(1) + "%";
+  }
+
+  function chunk() {
+    if (!running) return;
+    var t = target();
+    var end = nonce + 12000;
+    for (; nonce < end; nonce++) {
+      var bytes = SHA256.digest(date + ":" + nonce);
+      tried++;
+      if (SHA256.leadingZeroBits(bytes) >= t) {
+        result = { date: date, nonce: nonce, hash: SHA256.hex(bytes), bits: t };
+        running = false;
+        show(result);
+        stats(true);
+        toggle(false);
+        document.getElementById("copy").disabled = false;
+        document.getElementById("verify").disabled = false;
+        return;
+      }
+    }
+    stats(false);
+    setTimeout(chunk, 0);
+  }
+
+  function toggle(on) {
+    running = on;
+    document.getElementById("go").disabled = on;
+    document.getElementById("stop").disabled = !on;
+  }
+
+  document.getElementById("go").addEventListener("click", function () {
+    nonce = 0; tried = 0; result = null;
+    started = performance.now();
+    show(null);
+    document.getElementById("copy").disabled = true;
+    document.getElementById("verify").disabled = true;
+    toggle(true);
+    chunk();
+  });
+
+  document.getElementById("stop").addEventListener("click", function () {
+    toggle(false);
+    stats(false);
+  });
+
+  bitsIn.addEventListener("input", function () {
+    document.getElementById("bitsOut").textContent = bitsIn.value;
+    stats(false);
+  });
+
+  document.getElementById("copy").addEventListener("click", function () {
+    if (!result) return;
+    var text = result.date + " · " + result.nonce;
+    var btn = document.getElementById("copy");
+    function done() { btn.textContent = "copied — a date and a number, nothing else"; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, done);
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  });
+
+  document.getElementById("verify").addEventListener("click", function () {
+    if (!result) return;
+    var bytes = SHA256.digest(result.date + ":" + result.nonce);
+    var ok = SHA256.hex(bytes) === result.hash &&
+             SHA256.leadingZeroBits(bytes) >= result.bits;
+    document.getElementById("stats").textContent =
+      (ok ? "checked. it holds." : "checked. it does not hold.") + "\n" +
+      "anyone can run this check without learning anything about who ran the work.\n" +
+      "that asymmetry is the whole point.";
+  });
+
+  stats(false);
+  ROOM.foot("runs on your processor · no request · no storage");
+})();
+</script>
+</body>
+</html>
