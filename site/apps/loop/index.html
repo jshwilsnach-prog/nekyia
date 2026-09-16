@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loop — 1 to i to 0</title>
+<meta name="description" content="1 to i to 0 in a loop. Walkers at different speeds, meeting without arriving. Nobody leads. Sound optional.">
+<link rel="icon" href="../../favicon.svg">
+<link rel="stylesheet" href="../../nekyia.css">
+</head>
+<body>
+<div class="wrap">
+  <div id="lintel"></div>
+
+  <h1>1 to i to 0, in a loop</h1>
+  <p class="lede">Three stations, no finish line. Each walker goes round at its own rate,
+  which is not a rank &mdash; a faster circle is not a better circle. When two of them
+  reach a station together the room draws the meeting and, if you let it, sounds it.</p>
+
+  <div class="stage"><canvas id="c"></canvas></div>
+
+  <div class="controls">
+    <button id="sound">let it sound</button>
+    <button id="add">another walker</button>
+    <button id="fewer">one fewer</button>
+    <button id="reseed">new rates</button>
+    <label class="field">pace
+      <input id="pace" type="range" min="10" max="150" step="1" value="60">
+    </label>
+  </div>
+
+  <div class="panel">
+    <p class="readout" id="hud"></p>
+  </div>
+
+  <p class="note" style="margin-top:1.25rem">
+    The rates are deliberately incommensurate, so the pattern never repeats exactly and
+    no walker ever laps the others into a standing. Meetings happen because two paths
+    coincide for a moment, not because anyone earned one. <strong>1</strong> is relation
+    and rings clear. <strong>i</strong> is the whole and sits orthogonal &mdash; it is
+    detuned against everything on purpose, and it never resolves. <strong>0</strong> is
+    rank, and it is silent, because that is what rank is worth here.
+  </p>
+  <p class="small faint">
+    Sound needs a tap first; browsers require a gesture before audio, and this page is
+    not going to work around that. No recording, no microphone, no storage.
+  </p>
+
+  <div id="foot"></div>
+</div>
+
+<script src="../../law.js"></script>
+<script src="../../room.js"></script>
+<script>
+(function () {
+  "use strict";
+  ROOM.lintel("loop");
+
+  var STATIONS = [
+    { mark: NEKYIA.RELATION, label: "1", angle: -Math.PI / 2, color: "--relation", freq: 293.66 },
+    { mark: NEKYIA.WHOLE,    label: "i", angle: -Math.PI / 2 + (2 * Math.PI) / 3, color: "--whole", freq: 440.0 },
+    { mark: NEKYIA.RANK,     label: "0", angle: -Math.PI / 2 + (4 * Math.PI) / 3, color: "--rank", freq: 0 }
+  ];
+
+  var canvas = document.getElementById("c");
+  var view = null;
+  var walkers = [];
+  var meets = [];
+  var audio = null;
+  var master = null;
+  var soundOn = false;
+  var pace = 0.6;
+
+  function irrational(i) {
+    // rates that will not line up into a league table
+    var phi = 1.6180339887498949;
+    return 0.22 + ((i * phi) % 1) * 0.5;
+  }
+
+  function seed(n) {
+    walkers = [];
+    for (var i = 0; i < n; i++) {
+      walkers.push({
+        t: Math.random(),
+        rate: irrational(i + Math.random() * 7),
+        last: -1,
+        glow: 0
+      });
+    }
+  }
+
+  function startAudio() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return false;
+    audio = new Ctx();
+    master = audio.createGain();
+    master.gain.value = 0.16;
+    master.connect(audio.destination);
+    return true;
+  }
+
+  function ring(station, strength) {
+    if (!soundOn || !audio || !station.freq) return;
+    var now = audio.currentTime;
+    var osc = audio.createOscillator();
+    var gain = audio.createGain();
+    var isWhole = station.mark === NEKYIA.WHOLE;
+    osc.type = isWhole ? "triangle" : "sine";
+    osc.frequency.value = station.freq * (isWhole ? 1.0 : 1);
+    if (isWhole) osc.detune.value = 33;           // orthogonal, never resolving
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.28 * strength + 0.02, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + (isWhole ? 2.6 : 1.4));
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(now);
+    osc.stop(now + (isWhole ? 2.8 : 1.6));
+  }
+
+  function stationAt(t) {
+    // which third of the loop the walker is in
+    return Math.floor(((t % 1) + 1) % 1 * 3) % 3;
+  }
+
+  function step(dt) {
+    var arrivals = [];
+    walkers.forEach(function (wk, i) {
+      wk.t += wk.rate * pace * dt;
+      wk.glow = Math.max(0, wk.glow - dt * 1.6);
+      var s = stationAt(wk.t);
+      if (s !== wk.last) {
+        wk.last = s;
+        wk.glow = 1;
+        arrivals.push({ i: i, s: s });
+      }
+    });
+
+    // group arrivals landing in the same frame at the same station: a meeting
+    var byStation = {};
+    arrivals.forEach(function (a) {
+      (byStation[a.s] = byStation[a.s] || []).push(a.i);
+    });
+    Object.keys(byStation).forEach(function (k) {
+      var group = byStation[k];
+      var st = STATIONS[+k];
+      ring(st, group.length > 1 ? 1 : 0.5);
+      if (group.length > 1) {
+        meets.push({ s: +k, who: group.slice(), life: 1 });
+      }
+    });
+
+    meets = meets.filter(function (m) {
+      m.life -= dt * 0.8;
+      return m.life > 0;
+    });
+  }
+
+  function pos(t, r, cx, cy) {
+    var a = -Math.PI / 2 + ((t % 1) + 1) % 1 * Math.PI * 2;
+    return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, a: a };
+  }
+
+  function draw() {
+    var ctx = view.ctx;
+    var w = view.w, h = view.h;
+    var cx = w / 2, cy = h / 2;
+    var r = Math.min(w, h) * 0.34;
+
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = ROOM.token("--line", "#222");
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    var mono = ROOM.token("--mono", "monospace");
+
+    // meetings, drawn as chords across the loop
+    meets.forEach(function (m) {
+      var st = STATIONS[m.s];
+      var p = { x: cx + Math.cos(st.angle) * r, y: cy + Math.sin(st.angle) * r };
+      ctx.globalAlpha = m.life * 0.7;
+      ctx.strokeStyle = ROOM.token(st.color, "#888");
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 26 * (1.4 - m.life), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // the three stations
+    STATIONS.forEach(function (st) {
+      var x = cx + Math.cos(st.angle) * r;
+      var y = cy + Math.sin(st.angle) * r;
+      var col = ROOM.token(st.color, "#888");
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI * 2);
+      ctx.fillStyle = ROOM.token("--bg-raise", "#101216");
+      ctx.fill();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.fillStyle = col;
+      ctx.font = "500 15px " + mono;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(st.label, x, y);
+    });
+
+    // the walkers
+    walkers.forEach(function (wk) {
+      var p = pos(wk.t, r, cx, cy);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5 + wk.glow * 7, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(232,163,61," + (0.22 + wk.glow * 0.6).toFixed(3) + ")";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = ROOM.token("--lamp", "#e8a33d");
+      ctx.fill();
+    });
+
+    ctx.fillStyle = ROOM.token("--ink-faint", "#64615b");
+    ctx.font = "12px " + mono;
+    ctx.textAlign = "center";
+    ctx.fillText("no start · no finish · no order", cx, cy);
+  }
+
+  function hud() {
+    var folded = NEKYIA.fold(walkers.map(function () { return NEKYIA.RELATION; }));
+    document.getElementById("hud").textContent =
+      "walkers: " + walkers.length + "   asRank(" + walkers.length + ") = " + NEKYIA.asRank(walkers.length) + "\n" +
+      "all their relations folded: " + String(folded) + "  — many walkers, one relation\n" +
+      "meetings alight right now: " + meets.length + "   sound: " + (soundOn ? "on" : "off") + "\n" +
+      "sum(1, i) = " + String(NEKYIA.sum(NEKYIA.RELATION, NEKYIA.WHOLE)) +
+      "   exchange(1, i) = " + String(NEKYIA.exchange(NEKYIA.RELATION, NEKYIA.WHOLE));
+  }
+
+  var last = 0;
+  function frame(t) {
+    var dt = Math.min(0.05, (t - last) / 1000 || 0);
+    last = t;
+    step(dt);
+    draw();
+    hud();
+    requestAnimationFrame(frame);
+  }
+
+  function resize() {
+    view = ROOM.fit(canvas, 16 / 9);
+    draw();
+  }
+
+  document.getElementById("sound").addEventListener("click", function () {
+    var btn = this;
+    if (!audio && !startAudio()) {
+      btn.textContent = "this browser has no audio";
+      btn.disabled = true;
+      return;
+    }
+    if (audio.state === "suspended") audio.resume();
+    soundOn = !soundOn;
+    btn.setAttribute("aria-pressed", String(soundOn));
+    btn.textContent = soundOn ? "let it rest" : "let it sound";
+  });
+
+  document.getElementById("add").addEventListener("click", function () {
+    walkers.push({ t: Math.random(), rate: irrational(walkers.length + Math.random() * 11), last: -1, glow: 0 });
+  });
+
+  document.getElementById("fewer").addEventListener("click", function () {
+    if (walkers.length > 1) walkers.pop();
+  });
+
+  document.getElementById("reseed").addEventListener("click", function () {
+    seed(walkers.length);
+  });
+
+  document.getElementById("pace").addEventListener("input", function () {
+    pace = +this.value / 100;
+  });
+
+  ROOM.onResize(resize);
+  seed(4);
+  ROOM.foot("no recording · no microphone · nothing stored");
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nekyia — rooms</title>
+<meta name="description" content="An open walking. The door is nekyia.me. These are small rooms that run in a page: no account, no score, no tracker, nothing stored.">
+<meta property="og:title" content="Nekyia — rooms">
+<meta property="og:description" content="Rank is 0. Relation is 1. i is the whole. Small rooms that run in a page.">
+<meta property="og:image" content="https://nekyia.me/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="nekyia.css">
+<style>
+  .hub { max-width: 34rem; margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  .sigil { display: block; margin: 0 auto 1.1rem; width: 84px; height: 84px; }
+  .sigil path { stroke: var(--lamp); fill: none; stroke-width: 1.2; }
+  .sigil circle { stroke: var(--line); fill: none; stroke-width: 1; }
+  .name { text-align: center; font-size: 1.5rem; margin-bottom: 0.3rem; }
+  .tag { text-align: center; color: var(--ink-dim); font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .creed { text-align: center; font-family: var(--mono); font-size: 0.8rem;
+    color: var(--ink-faint); margin-bottom: 2rem; }
+  .creed .mark-0 { color: var(--rank); }
+  .creed .mark-1 { color: var(--relation); }
+  .creed .mark-i { color: var(--whole); }
+
+  .section { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--ink-faint); margin: 2rem 0 0.75rem; }
+
+  .link {
+    display: flex; align-items: center; gap: 0.85rem;
+    background: var(--bg-raise); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.85rem 1rem;
+    text-decoration: none; color: var(--ink);
+    margin-bottom: 0.6rem; transition: border-color .15s, transform .15s;
+  }
+  .link:hover { border-color: var(--lamp); transform: translateY(-1px); color: var(--ink); }
+  .link__glyph { font-family: var(--mono); font-size: 1.05rem; color: var(--lamp);
+    width: 1.6rem; text-align: center; flex: 0 0 auto; }
+  .link__body { flex: 1 1 auto; min-width: 0; }
+  .link__title { display: block; font-size: 0.97rem; font-weight: 500; }
+  .link__sub { display: block; font-size: 0.8rem; color: var(--ink-dim); }
+  .link__go { color: var(--ink-faint); font-family: var(--mono); font-size: 0.9rem; flex: 0 0 auto; }
+
+  .link--door { border-color: var(--lamp); background: var(--lamp-soft); }
+  .link--door .link__sub { color: var(--ink-dim); }
+
+  .tools { display: flex; gap: 0.5rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+  .hubfoot { text-align: center; color: var(--ink-faint); font-size: 0.78rem;
+    font-family: var(--mono); margin-top: 2rem; line-height: 1.8; }
+  .hubfoot a { color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<div class="hub">
+
+  <svg class="sigil" viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="44"></circle>
+    <path id="star"></path>
+  </svg>
+
+  <h1 class="name">Nekyia</h1>
+  <p class="tag">An open walking. First-person inner labyrinth. The game is a door.</p>
+  <p class="creed">
+    <span class="mark-0">0</span> rank &nbsp;·&nbsp;
+    <span class="mark-1">1</span> relation &nbsp;·&nbsp;
+    <span class="mark-i">i</span> the whole
+  </p>
+
+  <p class="section">the door</p>
+  <a class="link link--door" href="https://nekyia.me" data-link>
+    <span class="link__glyph">&#9675;</span>
+    <span class="link__body">
+      <span class="link__title">Play &mdash; nekyia.me</span>
+      <span class="link__sub">The walking itself. Descend or Watch. This is the link.</span>
+    </span>
+    <span class="link__go">&rarr;</span>
+  </a>
+
+  <p class="section">rooms that run in a page</p>
+  <div id="rooms"></div>
+
+  <p class="section">the law</p>
+  <div id="law"></div>
+
+  <p class="section">source</p>
+  <div id="source"></div>
+
+  <p class="section">a wallet to receive</p>
+  <div id="wallet"></div>
+
+  <div class="tools">
+    <button id="copy">copy every link</button>
+    <button id="theme">light</button>
+  </div>
+
+  <p class="hubfoot" id="hubfoot"></p>
+</div>
+
+<script src="law.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // the seven-pointed star the compass refuses, drawn by sight
+  (function star() {
+    var n = 7, k = 3, r = 44, c = 50, d = "";
+    for (var i = 0; i <= n; i++) {
+      var a = ((i * k) % n) * (2 * Math.PI / n) - Math.PI / 2;
+      d += (i === 0 ? "M" : "L") + (c + Math.cos(a) * r).toFixed(2) + "," + (c + Math.sin(a) * r).toFixed(2);
+    }
+    document.getElementById("star").setAttribute("d", d + "Z");
+  })();
+
+  var GROUPS = {
+    rooms: [
+      ["✶", "Seven", "A star that will not construct. Drag the lamps by will.", "apps/seven/"],
+      ["◌", "Two counts on a circle", "π from both sides, in exact integers. Stop one and the wheel seizes.", "apps/pi/"],
+      ["◈", "Marks", "0, 1, i with buttons on. Try to author rank and watch it refuse.", "apps/marks/"],
+      ["▦", "Dimensions", "One labyrinth in 3D, 2D, 1D, 0D and a loop. No exit, no timer.", "apps/dimensions/"],
+      ["●", "Aught", "A date and a whole number. Proof of work with nothing to prove about you.", "apps/aught/"],
+      ["◎", "Loop", "1 to i to 0. Walkers meeting without arriving. Sound optional.", "apps/loop/"]
+    ],
+    law: [
+      ["§", "The law", "A spare key. Copy it, fork it, keep it.", "https://github.com/jshwilsnach-prog/nekyia/blob/main/LAW.md"],
+      ["¶", "The philosophy", "Rank is zero. Relation is one. The whole stays orthogonal.", "https://github.com/jshwilsnach-prog/nekyia/blob/main/PHILOSOPHY.md"],
+      ["☷", "Table consensus", "What the table agreed. No known owner, no address as a who.", "https://github.com/jshwilsnach-prog/nekyia/blob/main/CONSENSUS.md"]
+    ],
+    source: [
+      ["⌂", "joshua", "The house. The rooms, the lamps, src/game/law.ts.", "https://github.com/jshwilsnach-prog/joshua"],
+      ["⌐", "nekyia", "The lintel. How to read, and these rooms.", "https://github.com/jshwilsnach-prog/nekyia"],
+      ["⊙", "aught", "Proof of work that links to Nekyia. A date and a count.", "https://github.com/jshwilsnach-prog/aught"]
+    ],
+    wallet: [
+      ["◆", "Zodl", "Receive and send shielded. The house does not custody. Rank is still 0.", "https://zodl.com"],
+      ["⌘", "How the wallet works", "WALLET.md, in the rooms.", "https://github.com/jshwilsnach-prog/joshua/blob/main/WALLET.md"]
+    ]
+  };
+
+  function render(id, items) {
+    var host = document.getElementById(id);
+    items.forEach(function (it) {
+      var a = document.createElement("a");
+      a.className = "link";
+      a.href = it[3];
+      a.setAttribute("data-link", "");
+      if (/^https?:/.test(it[3])) { a.rel = "noopener"; }
+      a.innerHTML =
+        '<span class="link__glyph"></span>' +
+        '<span class="link__body"><span class="link__title"></span><span class="link__sub"></span></span>' +
+        '<span class="link__go">&rarr;</span>';
+      a.querySelector(".link__glyph").textContent = it[0];
+      a.querySelector(".link__title").textContent = it[1];
+      a.querySelector(".link__sub").textContent = it[2];
+      host.appendChild(a);
+    });
+  }
+
+  Object.keys(GROUPS).forEach(function (k) { render(k, GROUPS[k]); });
+
+  document.getElementById("hubfoot").innerHTML =
+    "no account &middot; no score &middot; no tracker &middot; nothing stored<br>" +
+    "MIT. Fork the house. Keep the law.<br><br>" +
+    "<span></span>";
+  document.getElementById("hubfoot").querySelector("span").textContent = NEKYIA.LAW;
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var btn = this;
+    var lines = [];
+    document.querySelectorAll("[data-link]").forEach(function (a) {
+      var title = a.querySelector(".link__title").textContent.trim();
+      lines.push(title + " — " + a.href);
+    });
+    var text = lines.join("\n");
+    function done() {
+      btn.textContent = "copied " + lines.length + " links";
+      setTimeout(function () { btn.textContent = "copy every link"; }, 2500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, done);
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  });
+
+  document.getElementById("theme").addEventListener("click", function () {
+    var root = document.documentElement;
+    var light = root.getAttribute("data-theme") === "light";
+    root.setAttribute("data-theme", light ? "dark" : "light");
+    this.textContent = light ? "light" : "dark";
+  });
+})();
+</script>
+</body>
+</html>
